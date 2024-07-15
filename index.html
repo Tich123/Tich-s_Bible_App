@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Bible App</title>
+
+  <!-- CSS  -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="public/css/materialize.min.css" type="text/css" rel="stylesheet" media="screen,projection">
+  <link href="public/css/style.css" type="text/css" rel="stylesheet" media="screen,projection">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
+
+  <style>
+    body {
+      display: flex;
+      min-height: 100vh;
+      flex-direction: column;
+    }
+    main {
+      flex: 1 0 auto;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Navigation Bar -->
+<nav class="purple darken-4">
+  <div class="nav-wrapper container">
+    <a href="#" class="brand-logo"><h5>Bible App</h5></a>
+    <ul id="nav-mobile" class="right hide-on-med-and-down">
+      <li><a href="/">Home</a></li>
+      <li><a href="#aboutapp">About</a></li>
+    </ul>
+    <a href="#" data-target="nav-mobile" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+  </div>
+</nav>
+
+<!-- Side Navigation -->
+<ul class="sidenav" id="nav-mobile">
+  <li><a href="/">Home</a></li>
+  <li><a href="#aboutapp">About</a></li>
+</ul>
+
+<!-- Slider -->
+<section class="slider">
+  <div class="slider">
+    <ul class="slides">
+      <li>
+        <img src="backgroundblue.png" alt="Background Blue">
+        <div class="caption center-align">
+          <h2>Bible App</h2>
+          <h5 class="light grey-text text-lighten-3 hide-on-small-only">Explore Bible Verses</h5>
+          <div class="row center">
+            <a href="/" id="download-button" class="btn-large waves-effect waves-light blue lighten-1">Refresh</a>
+          </div>
+        </div>
+      </li>
+      <li>
+        <img src="backgroundpurple.png" alt="Background Purple">
+        <div class="caption left-align">
+          <h2>Bible App</h2>
+          <h5 class="light grey-text text-lighten-3 hide-on-small-only">Predicting Bible Verses</h5>
+          <a href="#aboutapp" class="btn btn-large waves-effect waves-light light-blue lighten-1">Learn More</a>
+        </div>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<!-- Main Section -->
+<main>
+  <div class="container">
+    <div class="section">
+      <div class="row">
+        <div class="col s12">
+          <div class="card">
+            <div class="card-content">
+              <span class="card-title">Search Bible</span>
+              <form id="search-form">
+                <div class="input-field">
+                  <input type="text" id="search-text" name="searchText" class="validate" required placeholder="Enter Book Name">
+                  <label for="search-text">Search by Book Name</label>
+                </div>
+                <div class="row center">
+                  <button id="search-button" class="btn waves-effect waves-light light-blue lighten-1" type="submit">Search</button>
+                  <button class="btn waves-effect waves-light purple lighten-1" type="reset">Clear</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row" id="results-container">
+        <!-- Results will be dynamically populated here -->
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<!-- About Section -->
+<footer class="page-footer purple darken-4">
+  <div class="container" id="aboutapp">
+    <div class="row">
+      <div class="col s12 m6">
+        <h5 class="white-text">About Bible App</h5>
+        <p class="grey-text text-lighten-4">Explore and Predict Bible Verses using Machine Learning.</p>
+      </div>
+      <div class="col s12 m6">
+        <h5 class="white-text">Connect With Me</h5>
+        <ul class="social-icons">
+          <li><a href="https://facebook.com/jcharistech" target="_blank"><i class="fab fa-facebook fa-4x"></i></a></li>
+          <li><a href="https://gh.linkedin.com/in/jesiel-emmanuel-agbemabiase-6935b690" target="_blank"><i class="fab fa-linkedin fa-4x"></i></a></li>
+          <li><a href="https://www.youtube.com/channel/UC2wMHF4HBkTMGLsvZAIWzRg" target="_blank"><i class="fab fa-youtube-square fa-4x"></i></a></li>
+          <li><a href="https://github.com/Jcharis/" target="_blank"><i class="fab fa-github-square fa-4x"></i></a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- Scripts -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="public/js/materialize.min.js"></script>
+<script>
+  $(document).ready(function(){
+    // Initialize Materialize components
+    $('.sidenav').sidenav();
+    $('.slider').slider();
+
+    // Handle form submission
+    $('#search-form').submit(function(event) {
+      event.preventDefault();
+      var searchText = $('#search-text').val();
+      $.ajax({
+        url: '/search?book=' + searchText,
+        method: 'GET',
+        success: function(data) {
+          displayResults(data);
+        },
+        error: function(err) {
+          console.error('Error fetching data:', err);
+          $('#results-container').html('<p>Error fetching data. Please try again later.</p>');
+        }
+      });
+    });
+
+    // Function to display search results
+    function displayResults(results) {
+      var html = '';
+      results.forEach(function(result) {
+        html += '<div class="col s12 m6">';
+        html += '<div class="card blue-grey darken-1">';
+        html += '<div class="card-content white-text">';
+        html += '<span class="card-title">' + result.book + ' ' + result.chapter + ':' + result.verse + '</span>';
+        html += '<p>' + result.text + '</p>';
+        html += '</div></div></div>';
+      });
+      $('#results-container').html(html);
+    }
+  });
+</script>
+</body>
+</html>
+
