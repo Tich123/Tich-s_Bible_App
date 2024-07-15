@@ -1,27 +1,43 @@
 const express = require('express');
+const multer = require('multer');
 const csv = require('csv-parser');
 const fs = require('fs');
+const path = require('path');
 
 const app = express();
-const PORT = 3000;
+const upload = multer();
 
-const bibleData = [];
+app.use(express.static('public'));
 
-fs.createReadStream('kjv_cleandata.csv')
-    .pipe(csv())
-    .on('data', (row) => {
-        bibleData.push(row);
-    })
-    .on('end', () => {
-        console.log('CSV file successfully processed.');
-    });
+// Endpoint to fetch Bible data
+app.get('/bible-data', (req, res) => {
+    const results = [];
+    fs.createReadStream(path.join(__dirname, 'data', 'kjv_cleandata.csv'))
+        .pipe(csv())
+        .on('data', (data) => results.push(data))
+        .on('end', () => {
+            res.json(results);
+        });
+});
 
+// Endpoint to search for a specific book
 app.get('/search', (req, res) => {
-    const { book } = req.query;
-    const result = bibleData.find(data => data.book === book);
-    res.json(result);
+    const bookName = req.query.book;
+    const results = [];
+    fs.createReadStream(path.join(__dirname, 'data', 'kjv_cleandata.csv'))
+        .pipe(csv())
+        .on('data', (data) => {
+            if (data.book.toLowerCase() === bookName.toLowerCase()) {
+                results.push(data);
+            }
+        })
+        .on('end', () => {
+            res.json(results);
+        });
 });
 
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+    console.log(`Server is running on port ${PORT}`);
 });
+
