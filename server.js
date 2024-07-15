@@ -11,7 +11,7 @@ app.use(express.static('public'));
 const cleanData = (data) => {
     const cleanedData = {};
     for (let key in data) {
-        if (key) {
+        if (key !== 'Unnamed: 0' && key !== 'label') { // Exclude additional columns
             cleanedData[key] = data[key];
         }
     }
