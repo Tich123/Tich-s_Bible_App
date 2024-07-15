@@ -1,22 +1,35 @@
 const express = require('express');
-const multer = require('multer');
 const csv = require('csv-parser');
 const fs = require('fs');
 const path = require('path');
 
 const app = express();
-const upload = multer();
 
 app.use(express.static('public'));
+
+// Function to clean the data by removing empty keys
+const cleanData = (data) => {
+    const cleanedData = {};
+    for (let key in data) {
+        if (key) {
+            cleanedData[key] = data[key];
+        }
+    }
+    return cleanedData;
+};
 
 // Endpoint to fetch Bible data
 app.get('/bible-data', (req, res) => {
     const results = [];
     fs.createReadStream(path.join(__dirname, 'data', 'kjv_cleandata.csv'))
         .pipe(csv())
-        .on('data', (data) => results.push(data))
+        .on('data', (data) => results.push(cleanData(data)))
         .on('end', () => {
             res.json(results);
+        })
+        .on('error', (error) => {
+            console.error('Error reading CSV file:', error);
+            res.status(500).json({ error: 'Error reading CSV file' });
         });
 });
 
@@ -27,12 +40,17 @@ app.get('/search', (req, res) => {
     fs.createReadStream(path.join(__dirname, 'data', 'kjv_cleandata.csv'))
         .pipe(csv())
         .on('data', (data) => {
-            if (data.book.toLowerCase() === bookName.toLowerCase()) {
-                results.push(data);
+            const cleanedData = cleanData(data);
+            if (cleanedData.book.toLowerCase() === bookName.toLowerCase()) {
+                results.push(cleanedData);
             }
         })
         .on('end', () => {
             res.json(results);
+        })
+        .on('error', (error) => {
+            console.error('Error reading CSV file:', error);
+            res.status(500).json({ error: 'Error reading CSV file' });
         });
 });
 
