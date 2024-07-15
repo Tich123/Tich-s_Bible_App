@@ -21,7 +21,7 @@ const cleanData = (data) => {
 // Endpoint to fetch Bible data
 app.get('/bible-data', (req, res) => {
     const results = [];
-    fs.createReadStream(path.join(__dirname, 'data', 'kjv_cleandata.csv'))
+    fs.createReadStream(path.join(__dirname, 'data', 'kjvmindata.csv'))
         .pipe(csv())
         .on('data', (data) => results.push(cleanData(data)))
         .on('end', () => {
@@ -37,7 +37,7 @@ app.get('/bible-data', (req, res) => {
 app.get('/search', (req, res) => {
     const bookName = req.query.book;
     const results = [];
-    fs.createReadStream(path.join(__dirname, 'data', 'kjv_cleandata.csv'))
+    fs.createReadStream(path.join(__dirname, 'data', 'kjvmindata.csv'))
         .pipe(csv())
         .on('data', (data) => {
             const cleanedData = cleanData(data);
